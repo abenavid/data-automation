@@ -1,4 +1,6 @@
 import datetime
+import shutil
+import os
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -6,27 +8,43 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
-import time 
+from selenium.webdriver.chrome.service import Service
+import time
 
-# Download chrom driver from https://chromedriver.storage.googleapis.com/index.html?path=79.0.3945.36/
-browser = webdriver.Chrome(executable_path = '') # TODO update file path to wherever you put the chromedriver locally
-browser.get('') # TODO add the url for the website you'll be scraping
-delay = 25 # wait 25s to let the website load
+# Define the URLs and credentials
+dashboard_url = ''  # URL of the dashboard to access
+email_address = ''  # Email address for login
+password = ''  # Password for login
+delay = 25  # Maximum delay in seconds for page elements to load
+
+# Set the path to the ChromeDriver executable
+chrome_driver_path = ''  # Path to the ChromeDriver executable
+
+# Set up the ChromeDriver service
+service = Service(chrome_driver_path)
+
+# Set up the webdriver with the ChromeDriver service
+browser = webdriver.Chrome(service=service)
+browser.get(dashboard_url)
 
 try:
-    # Sample code of logging into a website
-    myElem = WebDriverWait(browser, delay).until(EC.presence_of_element_located((By.ID, "input-62"))) 
+    # Wait for the email input field to be present
+    myElem = WebDriverWait(browser, delay).until(
+        EC.presence_of_element_located((By.ID, "input-62")))
     email = browser.find_element(By.ID, "input-62")
-    email.send_keys('name@email.com', Keys.TAB)
-    password = browser.find_element(By.ID, "input-65")
-    password.send_keys('PASSWORD', Keys.TAB + Keys.TAB + Keys.ENTER)
-except TimeoutException:
-    print ("Loading took too much time")
+    email.send_keys(email_address, Keys.TAB)
 
-# Adding sleeps between sures data is loaded
-# Sampele code of how to find different elements
+    # Enter the password and submit the form
+    password_field = browser.find_element(By.ID, "input-65")
+    password_field.send_keys(password, Keys.TAB + Keys.TAB + Keys.ENTER)
+except TimeoutException:
+    print("Loading took too much time")
+
 time.sleep(5)
-browser.find_element(By.ID, "search").send_keys(Keys.TAB + Keys.TAB + Keys.ENTER + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ENTER)
+
+# Perform the required actions on the webpage
+browser.find_element(By.ID, "search").send_keys(
+    Keys.TAB + Keys.TAB + Keys.ENTER + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ARROW_DOWN + Keys.ENTER)
 time.sleep(5)
 browser.find_element(By.XPATH, '//span[text()="EXPORT DATA"]').click()
 time.sleep(5)
